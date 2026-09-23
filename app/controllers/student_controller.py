@@ -1,10 +1,8 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from app import schemas
 from app.services.student_service import StudentService
-
-
-def ok(status_code: int, data, message: str) -> dict:
-    return {"status_code": status_code, "data": data, "message": message}
+from app.utils.response import ok
 
 
 class StudentController:
@@ -15,8 +13,8 @@ class StudentController:
         student = self.service.create_student(payload)
         return ok(201, schemas.StudentOut.model_validate(student), "Student created successfully")
 
-    def list_students(self, skip: int, limit: int):
-        students = self.service.list_students(skip, limit)
+    def list_students(self, skip: int, limit: int, search: Optional[str]):
+        students = self.service.list_students(skip, limit, search)
         data = [schemas.StudentOut.model_validate(s) for s in students]
         return ok(200, data, "Students fetched successfully")
 

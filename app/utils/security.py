@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -10,11 +9,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app import models
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 from app.database import get_db
 
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 PBKDF2_ITERATIONS = 200_000
 
 bearer_scheme = HTTPBearer(auto_error=False)

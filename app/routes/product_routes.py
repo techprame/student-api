@@ -3,12 +3,18 @@ from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.orm import Session
 from app import schemas
 from app.database import get_db
+from app.utils.security import get_current_user
 from app.controllers.product_controller import ProductController
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
-@router.post("", response_model=schemas.APIResponse[schemas.ProductOut], status_code=201)
+@router.post(
+    "",
+    response_model=schemas.APIResponse[schemas.ProductOut],
+    status_code=201,
+    dependencies=[Depends(get_current_user)],
+)
 def create_product(payload: schemas.ProductCreate, db: Session = Depends(get_db)):
     return ProductController(db).create_product(payload)
 
@@ -28,7 +34,11 @@ def get_product(product_id: int = Path(..., gt=0), db: Session = Depends(get_db)
     return ProductController(db).get_product(product_id)
 
 
-@router.put("/{product_id}", response_model=schemas.APIResponse[schemas.ProductOut])
+@router.put(
+    "/{product_id}",
+    response_model=schemas.APIResponse[schemas.ProductOut],
+    dependencies=[Depends(get_current_user)],
+)
 def update_product(
     payload: schemas.ProductUpdate,
     product_id: int = Path(..., gt=0),
@@ -37,6 +47,10 @@ def update_product(
     return ProductController(db).update_product(product_id, payload)
 
 
-@router.delete("/{product_id}", response_model=schemas.APIResponse[None])
+@router.delete(
+    "/{product_id}",
+    response_model=schemas.APIResponse[None],
+    dependencies=[Depends(get_current_user)],
+)
 def delete_product(product_id: int = Path(..., gt=0), db: Session = Depends(get_db)):
     return ProductController(db).delete_product(product_id)

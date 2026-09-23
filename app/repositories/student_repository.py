@@ -1,4 +1,5 @@
 from typing import List, Optional
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app import models, schemas
 
@@ -13,14 +14,18 @@ class StudentRepository:
     def get_by_email(self, email: str) -> Optional[models.Student]:
         return self.db.query(models.Student).filter(models.Student.email == email).first()
 
-    def get_all(self, skip: int, limit: int) -> List[models.Student]:
-        return (
-            self.db.query(models.Student)
-            .order_by(models.Student.id)
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+    def get_all(self, skip: int, limit: int, search: Optional[str]) -> List[models.Student]:
+        query = self.db.query(models.Student)
+        if search:
+            pattern = f"%{search}%"
+            query = query.filter(
+                or_(
+                    models.Student.name.ilike(pattern),
+                    models.Student.email.ilike(pattern),
+                    models.Student.course.ilike(pattern),
+                )
+            )
+        return query.order_by(models.Student.id).offset(skip).limit(limit).all()
 
     def create(self, payload: schemas.StudentCreate) -> models.Student:
         student = models.Student(**payload.model_dump())

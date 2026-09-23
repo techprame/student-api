@@ -1,16 +1,33 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app import models  
+from app import models  # noqa: F401  (registers the tables with Base)
 from app.database import Base, engine
 from app.routes import auth_routes, student_routes, product_routes
 
 
-Base.metadata.create_all(bind=engine)
-app = FastAPI(title="Student Management API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create the database tables when the server starts (if they don't exist yet)
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
+app = FastAPI(
+    title="Student Management API",
+    description=(
+        "A REST API to manage students and products, with JWT login.\n\n"
+        "**Reading** data is public. **Creating, updating and deleting** needs a token: "
+        "register or log in via `/auth`, then click **Authorize** and paste the `access_token`."
+    ),
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 
 def api_response(status_code: int, data=None, message: str = "", headers=None):
@@ -25,11 +42,9 @@ def api_response(status_code: int, data=None, message: str = "", headers=None):
     )
 
 
-
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     return api_response(exc.status_code, None, str(exc.detail), headers=exc.headers)
-
 
 
 @app.exception_handler(RequestValidationError)
@@ -42,7 +57,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         for err in exc.errors()
     ]
     return api_response(422, errors, "Validation error")
-
 
 
 @app.exception_handler(Exception)

@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app import schemas
@@ -13,8 +14,8 @@ class StudentService:
             raise HTTPException(status_code=409, detail="Email already registered")
         return self.repo.create(payload)
 
-    def list_students(self, skip: int, limit: int):
-        return self.repo.get_all(skip, limit)
+    def list_students(self, skip: int, limit: int, search: Optional[str]):
+        return self.repo.get_all(skip, limit, search)
 
     def get_student(self, student_id: int):
         student = self.repo.get_by_id(student_id)

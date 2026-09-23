@@ -1,12 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = "sqlite:///./students.db"
+from app.config import DATABASE_URL
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
+# SQLite needs this flag because FastAPI may use the connection from different threads
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -18,7 +18,7 @@ Base = declarative_base()
 
 
 def get_db():
-    """Har request ko apna DB session deta hai, aur error aaye tab bhi close karta hai."""
+    """Give each request its own DB session and always close it, even on errors."""
     db = SessionLocal()
     try:
         yield db

@@ -21,11 +21,11 @@ class StudentBase(BaseModel):
 
 
 class StudentCreate(StudentBase):
-    """POST /students ka body."""
+    """Request body for POST /students."""
 
 
 class StudentUpdate(StudentBase):
-    """PUT /students/{id} ka body (poora record replace hota hai)."""
+    """Request body for PUT /students/{id} (replaces the whole record)."""
 
 
 class StudentOut(StudentBase):
@@ -41,11 +41,11 @@ class ProductBase(BaseModel):
 
 
 class ProductCreate(ProductBase):
-    """POST /products ka body."""
+    """Request body for POST /products."""
 
 
 class ProductUpdate(ProductBase):
-    """PUT /products/{id} ka body (poora record replace hota hai)."""
+    """Request body for PUT /products/{id} (replaces the whole record)."""
 
 
 class ProductOut(ProductBase):
@@ -81,7 +81,7 @@ T = TypeVar("T")
 
 
 class APIResponse(BaseModel, Generic[T]):
-    """Har response ka standard format."""
+    """Standard wrapper used by every response."""
 
     status_code: int
     data: Optional[T] = None

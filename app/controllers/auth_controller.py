@@ -1,10 +1,7 @@
 from sqlalchemy.orm import Session
 from app import schemas, models
 from app.services.auth_service import AuthService
-
-
-def ok(status_code: int, data, message: str) -> dict:
-    return {"status_code": status_code, "data": data, "message": message}
+from app.utils.response import ok
 
 
 class AuthController:

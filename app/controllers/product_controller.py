@@ -2,10 +2,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from app import schemas
 from app.services.product_service import ProductService
-
-
-def ok(status_code: int, data, message: str) -> dict:
-    return {"status_code": status_code, "data": data, "message": message}
+from app.utils.response import ok
 
 
 class ProductController:
